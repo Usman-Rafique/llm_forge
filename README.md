@@ -1,5 +1,9 @@
 # LLM Forge
 
+![icon](icon.png)
+
+*(Image generated using [Imagen3 by Google](https://deepmind.google/technologies/imagen-3/))*
+
 This repo is my experimental playground for building and training practical LLMs with relatively limited compute resources. The goal is to train real LLMs on actual datasets, starting with pre-training from scratch and eventually moving towards instruction tuning with pre-trained models.
 
 ## Goals
