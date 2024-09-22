@@ -1,0 +1,17 @@
+# Logs
+logs/
+
+# Checkpoints
+checkpoints/
+
+# VS Code settings
+.vscode/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# Other common files to ignore
+*.log
+*.swp
+.DS_Store

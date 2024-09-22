@@ -1,0 +1,38 @@
+global:
+  tokenizer_name: 'r50k_base'
+  batch_size: 4
+  optimizer: 'AdamW'
+  learning_rate: 1.0e-4
+  weight_decay: 0.01
+  num_epochs: 1
+  save_dir: './checkpoints/gpt2_medium_low_LR'
+  log_dir: './logs/gpt2_medium_low_LR'
+  devices: ['cuda:0', 'cuda:1']
+  eval_frequency: 1000  # Evaluate every 1000 iterations
+  num_val_batches: 50   # Use 50 validation batches for each evaluation
+  mixed_precision: false  # Set to true for mixed precision training, false for full precision
+
+models:
+  gpt2_large:
+    context_length: 1024  # Maximum sequence length
+    emb_dim: 1280         # Embedding dimension
+    n_heads: 20           # Number of attention heads
+    n_layers: 36          # Number of transformer layers
+    drop_rate: 0.0        # Dropout rate
+    qkv_bias: false       # Whether to use bias in query, key, and value projections
+
+  gpt2_medium:
+    context_length: 1024
+    emb_dim: 1024
+    n_heads: 16
+    n_layers: 24
+    drop_rate: 0.0
+    qkv_bias: false
+
+  gpt2_small:
+    context_length: 512
+    emb_dim: 768
+    n_heads: 12
+    n_layers: 12
+    drop_rate: 0.1
+    qkv_bias: false
