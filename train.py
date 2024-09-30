@@ -219,6 +219,22 @@ def main():
     if use_mixed_precision:
         print('INFO: using Mixed-Precision Training')
 
+    print(f"INFO: using {len(devices)} GPUs")
+    print(f"INFO: using {global_config['num_epochs']} epochs")
+    print(f"INFO: using {global_config['save_dir']} as save directory")
+    print(f"INFO: using {global_config['log_dir']} as log directory")
+    print(
+        f"INFO: using {global_config['eval_frequency']} as evaluation frequency"
+    )
+    print(
+        f"INFO: using {global_config['num_val_batches']} as number of validation batches"
+    )
+    print(
+        f"INFO: using {global_config['mixed_precision']} as mixed precision training"
+    )
+    print(f"INFO: model name: {args.model_name}")
+    print(f"INFO: model config: {model_config}")
+
     train(model, train_loader, val_loader, loss_function, optimizer,
           global_config['num_epochs'], global_config['save_dir'],
           global_config['log_dir'], devices, global_config['eval_frequency'],
