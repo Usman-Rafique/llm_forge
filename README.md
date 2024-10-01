@@ -18,60 +18,86 @@ The dataset used for training is the [FineWebEdu Deduplicated from SmolLM-Corpus
 
 Please note that the dataset is much bigger, and we will probably not use all of it for training.
 
+## Pre-trained Checkpoints
+
+We provide pre-trained model checkpoints for easy experimentation and text generation. You can download these checkpoints from our [Google Drive folder](https://drive.google.com/drive/folders/1qFAAdg4SYwNkT-jHdES46OVJRHpYvry8?usp=sharing).
+
+Currently available checkpoints:
+- `model_gpt2_medium.pth`
+
+To use a pre-trained checkpoint:
+
+1. Download the desired checkpoint file from the Google Drive link.
+2. Place it in the `checkpoints` directory of your project.
+3. Use it for text generation or continue training from this point.
+
+For detailed instructions on downloading and using checkpoints, please refer to the [Setup Guide](docs/setup.md).
+
+## Quick Start
+
+For detailed setup instructions, please refer to [docs/setup.md](docs/setup.md).
+
+1. Clone the repository:
+   ```
+   git clone https://github.com/Usman-Rafique/llm_forge.git
+   cd llm_forge
+   ```
+
+2. Set up the environment and install dependencies:
+   ```
+   python -m venv llm
+   source llm/bin/activate  # On Windows use: llm\Scripts\activate
+   pip install -r requirements.txt
+   pip install -e .
+   ```
+
+3. Train a model:
+   ```
+   python -m llm_forge.train gpt2_medium --config_file configs/gpt2.yaml
+   ```
+
+4. Generate text using a pre-trained checkpoint:
+   ```
+   python -m llm_forge.generate_text gpt2_medium --config_file configs/gpt2.yaml --checkpoint checkpoints/model_gpt2_medium.pth
+   ```
+
+For detailed information on CLI arguments for training and text generation, please refer to:
+- [docs/train_cli.md](docs/train_cli.md)
+- [docs/generate_cli.md](docs/generate_cli.md)
+
+## Project Structure
+
+```
+llm_forge/
+├── src/
+│   └── llm_forge/
+│       ├── models/
+│       ├── data/
+│       ├── utils/
+│       ├── train.py
+│       └── generate_text.py
+├── tests/
+├── configs/
+├── docs/
+├── checkpoints/
+└── README.md
+```
+
+## Features
+
+- Modular architecture for easy experimentation
+- Support for GPT-style models
+- Configurable model sizes and architectures
+- Text generation capabilities
+
 ## Models
 Models supported so far:
 
 - [x] GPT-2 from Scratch
 
-## Usage
-
-### Training
-Use the `train.py` script to train a model. The configs are stored in the file `configs.yaml`.
-
-```bash
-python train.py <model_name> --config_file configs.yaml --ds_path /data/datasets/smol_lm_corpus/fineweb_edu
-```
-
-### Command Line Arguments:
-- `<model_name>`: Name of the model configuration to use (e.g., `gpt2_large`).
-- `--config_file`: Path to the configuration file (default: `configs.yaml`).
-- `--ds_path`: Path to the dataset (default: `/data/datasets/smol_lm_corpus/fineweb_edu`).
-
-### Example Command:
-```bash
-python train.py gpt2 --config_file configs.yaml --ds_path /data/datasets/smol_lm_corpus/fineweb_edu
-```
-
-### Additional Training Parameters:
-You can also specify additional training parameters in the configuration file, such as:
-- `max_length`: Maximum sequence length for training.
-- `batch_size`: Number of samples per gradient update.
-- `epochs`: Number of epochs to train the model.
-- `learning_rate`: Learning rate for the optimizer.
-
-### Inference
-Use the `generate_text.py` script to generate text with a trained model.
-
-```bash
-python generate_text.py <model_name> --config_file configs.yaml --save_dir checkpoints --max_length 100 --start_text "Your prompt here"
-```
-
-### Command Line Arguments:
-- `<model_name>`: Name of the model configuration to use (e.g., `gpt2_medium`).
-- `--config_file`: Path to the configuration file (default: `configs.yaml`).
-- `--save_dir`: Directory where the model checkpoint is saved (default: `checkpoints`).
-- `--max_length`: Maximum length of generated text (default: `100`).
-- `--start_text`: The text to start generation (default: `"Fruits are good for you because"`).
-
-### Example Command:
-```bash
-python generate_text.py gpt2_medium --config_file configs.yaml --save_dir checkpoints --max_length 100 --start_text "Once upon a time"
-```
-
 ## Results
 
-Since the model can not even finish the first epoch, both training and validation loss are indicative of how well the model is able to fit the data. So I am inlcuding an approximation of the loss based on the training and val loss.
-
+Since the model can not even finish the first epoch, both training and validation loss are indicative of how well the model is able to fit the data. So I am including an approximation of the loss based on the training and val loss.
 
 | Model | Implementation | Training Time | # Training Batches | Batch Size | # Parameters* | Loss | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -81,9 +107,9 @@ Since the model can not even finish the first epoch, both training and validatio
 
 ### Training Logs
 
-Detailed training logs for each model are available in the `training_logs` folder. You can find the logs for specific models here:
+Detailed training logs for each model are available in the `docs` folder. You can find the logs for specific models here:
 
-- [GPT-2 Medium Training Logs](training_logs/gpt2_logs.md)
+- [GPT-2 Medium Training Logs](docs/gpt2_logs.md)
 
 ### Generated Text
 
@@ -114,6 +140,14 @@ I intend to log the issues that I face and the fixes that I apply here.
 
 - **Mixed Precision**:
   - I tried PyTorch's Mixed Precision for GPT-2 Medium but it did not reduce GPU memory usage. My setup is 2 x RTX 4090 GPUs with 24GB RAM each.
+
+## Contributing
+
+Contributions are welcome! Please check out our [Contributing Guidelines](docs/CONTRIBUTING.md) for more information.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Acknowledgements
 - The initial code is adapted from [Sebastian Raschka](https://github.com/rasbt) and his [LLM Workshop 2024](https://github.com/rasbt/LLM-workshop-2024?tab=readme-ov-file) on "Pretraining and Finetuning LLMs from the Ground Up"

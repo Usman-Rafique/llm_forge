@@ -6,14 +6,15 @@ import torch
 import torch.nn as nn
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
-from models import GPTModel
-from data import create_dataloaders
+from llm_forge.models.factory import ModelFactory
+from llm_forge.data import create_dataloaders
 import torch.nn.utils as utils
+from llm_forge.utils.config import load_config
 
 
 def train(model, train_loader, val_loader, loss_function, optimizer, num_epochs,
           save_dir, log_dir, devices, eval_frequency, num_val_batches,
-          use_mixed_precision):
+          use_mixed_precision, model_name):
     # Move the model to the primary device
     model = model.to(devices[0])
 
@@ -78,7 +79,8 @@ def train(model, train_loader, val_loader, loss_function, optimizer, num_epochs,
                 best_val_loss = log_and_save(writer,
                                              model, optimizer, global_step,
                                              loss.item(), avg_val_loss,
-                                             save_dir, best_val_loss)
+                                             save_dir, best_val_loss,
+                                             model_name)
 
         progress_bar.close()
 
@@ -137,7 +139,7 @@ def validate(model, val_loader, loss_function, num_val_batches, device):
 
 
 def log_and_save(writer, model, optimizer, global_step, train_loss, val_loss,
-                 save_dir, best_val_loss):
+                 save_dir, best_val_loss, model_name):
     writer.add_scalar('Loss/train', train_loss, global_step)
     writer.add_scalar('Loss/val', val_loss, global_step)
 
@@ -152,28 +154,21 @@ def log_and_save(writer, model, optimizer, global_step, train_loss, val_loss,
         model_to_save = model.module if isinstance(model,
                                                    nn.DataParallel) else model
 
-        # Save the model state dict
+        # Save the model state dict with the new naming convention
+        checkpoint_name = f'model_{model_name}.pth'
         torch.save(
             {
                 'model_state_dict': model_to_save.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
                 'global_step': global_step,
                 'best_val_loss': best_val_loss,
-            }, os.path.join(save_dir, 'best_model.pth'))
+            }, os.path.join(save_dir, checkpoint_name))
 
-        print(f"New best model saved with validation loss: {best_val_loss:.4f}")
+        print(
+            f"New best model saved as {checkpoint_name} with validation loss: {best_val_loss:.4f}"
+        )
 
     return best_val_loss
-
-
-def load_config(config_file, model_name):
-    with open(config_file, 'r') as file:
-        config = yaml.safe_load(file)
-
-    global_config = config['global']
-    model_config = config['models'][model_name]
-
-    return global_config, model_config
 
 
 def main():
@@ -183,10 +178,10 @@ def main():
         "model_name",
         help="Name of the model configuration to use (e.g., gpt2_large)")
     parser.add_argument("--config_file",
-                        default="configs.yaml",
-                        help="Path to the configuration file")
+                        default="gpt2",
+                        help="Path to the configuration file or config name")
     parser.add_argument("--ds_path",
-                        default="/data/datasets/smol_lm_corpus/fineweb_edu",
+                        default="datasets/smol_lm_corpus/fineweb_edu",
                         help="Path to the dataset")
     args = parser.parse_args()
 
@@ -196,7 +191,7 @@ def main():
     model_config['vocab_size'] = tokenizer.n_vocab
     model_config['tokenizer_name'] = global_config['tokenizer_name']
 
-    model = GPTModel(**model_config)
+    model = ModelFactory.create_model('gpt', model_config)
 
     train_loader, val_loader = create_dataloaders(
         ds_path=args.ds_path,
@@ -214,8 +209,7 @@ def main():
     devices = [f"cuda:{i}" for i in range(torch.cuda.device_count())
               ] if torch.cuda.is_available() else ["cpu"]
 
-    use_mixed_precision = global_config.get(
-        'mixed_precision', False)  # Get mixed precision setting from config
+    use_mixed_precision = global_config.get('mixed_precision', False)
     if use_mixed_precision:
         print('INFO: using Mixed-Precision Training')
 
@@ -238,7 +232,8 @@ def main():
     train(model, train_loader, val_loader, loss_function, optimizer,
           global_config['num_epochs'], global_config['save_dir'],
           global_config['log_dir'], devices, global_config['eval_frequency'],
-          global_config['num_val_batches'], use_mixed_precision)
+          global_config['num_val_batches'], use_mixed_precision,
+          args.model_name)
 
 
 if __name__ == "__main__":

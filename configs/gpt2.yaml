@@ -1,15 +1,15 @@
 global:
   tokenizer_name: 'r50k_base'
-  batch_size: 4
+  batch_size: 2
   optimizer: 'AdamW'
-  learning_rate: 1.0e-4
+  learning_rate: 5.0e-5
   weight_decay: 0.01
   num_epochs: 1
-  save_dir: './checkpoints/gpt2_medium_low_LR'
-  log_dir: './logs/gpt2_medium_low_LR'
+  save_dir: './checkpoints'
+  log_dir: './logs/gpt2_medium'
   devices: ['cuda:0', 'cuda:1']
-  eval_frequency: 1000  # Evaluate every 1000 iterations
-  num_val_batches: 50   # Use 50 validation batches for each evaluation
+  eval_frequency: 10  # Evaluate every 1000 iterations
+  num_val_batches: 5   # Use 50 validation batches for each evaluation
   mixed_precision: false  # Set to true for mixed precision training, false for full precision
 
 models:

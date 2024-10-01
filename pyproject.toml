@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llm_forge"
+version = "0.1.0"
+description = "A toolkit for building and training LLMs"
+authors = [{name = "Usman Rafique", email = "usman@urafique.com"}]
+license = {file = "LICENSE"}
+readme = "README.md"
+requires-python = ">=3.7"
+dependencies = [
+    "torch",
+    "transformers",
+    "datasets",
+    "pyyaml",
+    # Add other dependencies
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "black", "isort"]
+
+[tool.setuptools]
+packages = ["llm_forge"]
+package-dir = {"" = "src"}
+
+[project.scripts]
+llm-train = "llm_forge.train:main"
+llm-generate = "llm_forge.generate:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
