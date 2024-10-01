@@ -8,8 +8,8 @@ global:
   save_dir: './checkpoints'
   log_dir: './logs/gpt2_medium'
   devices: ['cuda:0', 'cuda:1']
-  eval_frequency: 10  # Evaluate every 1000 iterations
-  num_val_batches: 5   # Use 50 validation batches for each evaluation
+  eval_frequency: 1000  # Evaluate every 1000 iterations
+  num_val_batches: 50   # Use 50 validation batches for each evaluation
   mixed_precision: false  # Set to true for mixed precision training, false for full precision
 
 models:
