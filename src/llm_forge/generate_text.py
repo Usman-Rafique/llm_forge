@@ -2,18 +2,8 @@ import argparse
 import os
 import torch
 import tiktoken
-from models import GPTModel
-import yaml
-
-
-def load_config(config_file, model_name):
-    with open(config_file, 'r') as file:
-        config = yaml.safe_load(file)
-
-    global_config = config['global']
-    model_config = config['models'][model_name]
-
-    return global_config, model_config
+from llm_forge.models.factory import ModelFactory
+from llm_forge.utils.config import load_config
 
 
 def main():
@@ -23,11 +13,10 @@ def main():
         "model_name",
         help="Name of the model configuration to use (e.g., gpt2_medium)")
     parser.add_argument("--config_file",
-                        default="configs.yaml",
-                        help="Path to the configuration file")
-    parser.add_argument("--save_dir",
-                        default="checkpoints",
-                        help="Directory where the model checkpoint is saved")
+                        default="gpt2",
+                        help="Path to the configuration file or config name")
+    parser.add_argument("--checkpoint",
+                        help="Path to the specific checkpoint file to load")
     parser.add_argument("--max_length",
                         type=int,
                         default=100,
@@ -44,21 +33,32 @@ def main():
     model_config['vocab_size'] = tokenizer.n_vocab
     model_config['tokenizer_name'] = global_config['tokenizer_name']
 
-    # Instantiate the model
-    model = GPTModel(**model_config)
+    # Instantiate the model using ModelFactory
+    model = ModelFactory.create_model('gpt', model_config)
+
+    device = global_config['devices'][0]
+    model.to(device)
 
     # Load the checkpoint
-    checkpoint_path = os.path.join(global_config['save_dir'], 'best_model.pth')
-    if os.path.exists(checkpoint_path):
-        checkpoint = torch.load(checkpoint_path)
-        model.load_state_dict(checkpoint['model_state_dict'])
-        print("Model checkpoint loaded from {}".format(checkpoint_path))
+    if args.checkpoint:
+        checkpoint_path = args.checkpoint
     else:
-        print(f"Checkpoint not found at {checkpoint_path}. Exiting.")
-        return
+        checkpoint_name = f'model_{args.model_name}.pth'
+        checkpoint_path = os.path.join(global_config['save_dir'],
+                                       checkpoint_name)
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model.to(device)
+    if os.path.exists(checkpoint_path):
+        try:
+            checkpoint = torch.load(checkpoint_path, map_location=device)
+            model.load_state_dict(checkpoint['model_state_dict'])
+            print(f"Model checkpoint loaded from {checkpoint_path}")
+        except RuntimeError as e:
+            print(f"Error loading checkpoint: {e}")
+            print("Continuing with untrained model.")
+    else:
+        print(
+            f"Checkpoint not found at {checkpoint_path}. Continuing with untrained model."
+        )
 
     # Generate text using the existing generate_text method
     generated_text = model.generate_text(args.start_text,

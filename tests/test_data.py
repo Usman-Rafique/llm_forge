@@ -1,7 +1,8 @@
 import unittest
 import torch
 import tiktoken
-from data import FineWebEduDataset, create_dataloaders, collate_fn
+from unittest.mock import patch
+from llm_forge.data.dataset import FineWebEduDataset, create_dataloaders, collate_fn
 
 
 class TestData(unittest.TestCase):
@@ -56,8 +57,8 @@ class TestData(unittest.TestCase):
         def mock_load_from_disk(path):
             return [{'text': f'Test sentence {i}'} for i in range(100)]
 
-        with unittest.mock.patch('data.load_from_disk',
-                                 side_effect=mock_load_from_disk):
+        with patch('llm_forge.data.dataset.load_from_disk',
+                   side_effect=mock_load_from_disk):
             train_loader, val_loader = create_dataloaders(test_ds_path,
                                                           self.batch_size,
                                                           self.max_length,

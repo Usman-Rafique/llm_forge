@@ -1,17 +1,33 @@
-# Logs
-logs/
-
-# Checkpoints
-checkpoints/
-
-# VS Code settings
-.vscode/
-
-# Python cache files
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 
-# Other common files to ignore
+# Virtual environment
+venv/
+env/
+
+# Checkpoints
+*.pth
+checkpoints/
+
+# Logs
+logs/
 *.log
-*.swp
+
+# Egg-info / Distribution / Packaging
+*.egg-info/
+dist/
+build/
+
+# VSCode settings
+.vscode/
+
+# OS generated files
 .DS_Store
+Thumbs.db
+
+# Other common files to ignore
+*.swp
+*.bak
+*.tmp
+datasets/

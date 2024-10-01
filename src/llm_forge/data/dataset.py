@@ -1,3 +1,5 @@
+import os
+from pathlib import Path
 from datasets import load_from_disk
 from torch.utils.data import Dataset, DataLoader, random_split
 import torch
@@ -101,10 +103,18 @@ def create_dataloaders(ds_path,
 
 
 if __name__ == "__main__":
+    # Get the project root directory
+    PROJECT_ROOT = Path(__file__).resolve().parents[3]
+
+    # Define the default dataset path relative to the project root
+    DEFAULT_DATASET_PATH = os.path.join(PROJECT_ROOT, 'datasets',
+                                        'smol_lm_corpus', 'fineweb_edu')
+
     # This section is for testing purposes
     import tiktoken
 
-    ds_path = '/data/datasets/smol_lm_corpus/fineweb_edu'
+    # Use the default path or override with an environment variable
+    ds_path = os.environ.get('DATASET_PATH', DEFAULT_DATASET_PATH)
     tokenizer_name = 'r50k_base'
     tokenizer = tiktoken.get_encoding(tokenizer_name)
     max_length = 2048
@@ -131,3 +141,4 @@ if __name__ == "__main__":
     print("Input IDs shape:", val_batch['input_ids'].shape)
     print("Labels shape:", val_batch['labels'].shape)
     print("Attention mask shape:", val_batch['attention_mask'].shape)
+    print("Done running demo dataset")

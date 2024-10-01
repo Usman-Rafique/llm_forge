@@ -1,7 +1,8 @@
 import unittest
 import torch
-from models import GPTModel
 import tiktoken
+from llm_forge.models.factory import ModelFactory
+from llm_forge.models.gpt import GPTModel
 
 
 class TestModels(unittest.TestCase):
@@ -17,7 +18,7 @@ class TestModels(unittest.TestCase):
             "tokenizer_name": "r50k_base",
             "qkv_bias": True
         }
-        model = GPTModel(**model_config)
+        model = ModelFactory.create_model('gpt', model_config)
 
         # Create a dummy input
         batch_size = 2
@@ -41,7 +42,7 @@ class TestModels(unittest.TestCase):
         }
         tokenizer = tiktoken.get_encoding(model_config["tokenizer_name"])
         model_config['vocab_size'] = tokenizer.n_vocab
-        model = GPTModel(**model_config)
+        model = ModelFactory.create_model('gpt', model_config)
 
         start_text = "To test"
         max_length = 50
@@ -52,6 +53,26 @@ class TestModels(unittest.TestCase):
 
         self.assertIsInstance(generated_text, str)
         self.assertTrue(len(generated_text) > len(start_text))
+
+    def test_model_factory(self):
+        model_config = {
+            "vocab_size": 1000,
+            "context_length": 128,
+            "emb_dim": 256,
+            "n_heads": 4,
+            "n_layers": 2,
+            "drop_rate": 0.1,
+            "tokenizer_name": "r50k_base",
+            "qkv_bias": True
+        }
+
+        # Test creating a GPT model
+        gpt_model = ModelFactory.create_model('gpt', model_config)
+        self.assertIsInstance(gpt_model, GPTModel)
+
+        # Test creating an unknown model type
+        with self.assertRaises(ValueError):
+            ModelFactory.create_model('unknown_model', model_config)
 
 
 if __name__ == '__main__':
