@@ -8,14 +8,12 @@ class TestTrain(unittest.TestCase):
 
     @patch('llm_forge.train.tqdm')
     @patch('llm_forge.train.SummaryWriter')
-    @patch('llm_forge.data.dataset.create_dataloaders')
     @patch('llm_forge.train.process_batch')
-    def test_train_function(self, mock_process_batch, mock_create_dataloaders,
-                            mock_summary_writer, mock_tqdm):
+    def test_train_function(self, mock_process_batch, mock_summary_writer,
+                            mock_tqdm):
         # Create mock objects
         mock_model = MagicMock()
         mock_train_loader = MagicMock()
-        mock_val_loader = MagicMock()
         mock_loss_function = MagicMock()
         mock_optimizer = MagicMock()
 
@@ -27,13 +25,6 @@ class TestTrain(unittest.TestCase):
             'labels': torch.randint(0, 100, (2, 10)),
             'attention_mask': torch.ones(2, 10)
         }])
-        mock_val_loader.__iter__.return_value = iter([{
-            'input_ids': torch.randint(0, 100, (2, 10)),
-            'labels': torch.randint(0, 100, (2, 10)),
-            'attention_mask': torch.ones(2, 10)
-        }])
-        mock_create_dataloaders.return_value = (mock_train_loader,
-                                                mock_val_loader)
 
         # Mock process_batch to return a tensor that requires gradients
         mock_process_batch.return_value = torch.tensor(0.5, requires_grad=True)
@@ -43,26 +34,18 @@ class TestTrain(unittest.TestCase):
         mock_tqdm_instance.__iter__.return_value = iter(mock_train_loader)
         mock_tqdm.return_value = mock_tqdm_instance
 
-        # Call the train function with the new model_name parameter
-        train(mock_model,
-              mock_train_loader,
-              mock_val_loader,
-              mock_loss_function,
-              mock_optimizer,
+        # Call the train function with the updated parameters
+        train(model=mock_model,
+              train_loader=mock_train_loader,
+              loss_function=mock_loss_function,
+              optimizer=mock_optimizer,
               num_epochs=1,
               save_dir='dummy_save_dir',
               log_dir='dummy_log_dir',
               devices=['cpu'],
               eval_frequency=5,
-              num_val_batches=1,
               use_mixed_precision=False,
               model_name='gpt2_medium')
-
-        # Debugging call counts
-        print(f"train() called: {mock_model.train.call_count}")
-        print(f"zero_grad() called: {mock_optimizer.zero_grad.call_count}")
-        print(f"step() called: {mock_optimizer.step.call_count}")
-        print(f"process_batch() called: {mock_process_batch.call_count}")
 
         # Assert that certain methods were called
         self.assertTrue(mock_model.train.called, "model.train() was not called")
