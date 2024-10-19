@@ -1,11 +1,18 @@
 # GPT-2 Medium Training Log
 
 ## Configuration
-- Model: GPT-2 Medium
 - Training Duration: 24 hours
 - Batch Size: 4
 - Learning Rate: 1e-4
 - Gradient Clipping: 1.0
+models:
+  gpt2_medium:
+    context_length: 1024
+    emb_dim: 1024
+    n_heads: 16
+    n_layers: 24
+    drop_rate: 0.0
+    qkv_bias: false
 
 ## Training Progress
 
@@ -27,7 +34,46 @@ Fruits are rich in vitamins, fiber, and vitamins and are also rich in vitamins a
 Fruits are rich in vitamins and fiber as
 ```
 
-## Challenges and Solutions
+# GPT-2 Large Training Log
+
+## Configuration
+- Training Duration: 24 hours
+- Batch Size: 2
+- Learning Rate: 5.0e-5
+- Gradient Clipping: 1.0
+models:
+  gpt2_large:
+    context_length: 1024  # Maximum sequence length
+    emb_dim: 1280         # Embedding dimension
+    n_heads: 20           # Number of attention heads
+    n_layers: 36          # Number of transformer layers
+    drop_rate: 0.0        # Dropout rate
+    qkv_bias: false       # Whether to use bias in query, key, and value projections
+
+## Training Progress
+
+### Training Loss
+![Training Loss](./images/gpt2_large_train_loss.png)
+
+### Validation Loss
+![Validation Loss](./images/gpt2_large_val_loss.png)
+
+## Evaluation Results
+Final validation loss: [Insert final validation loss here]
+
+## Sample Output
+```
+Fruits are good for you because ____.
+Fruits are a good way to enjoy your own health benefits.
+Fruits are good for your health and will help you to improve your health.
+Fruits and vegetables are good for your health.
+1. Fruits are good for your health and can help you to maintain healthy blood sugar levels.
+2. Fruits are good for children and adults all over the world.
+3. Fruits are good for your health if they��re good for your health
+```
+Looks like this model generated a multiple choice question!
+
+# Challenges and Solutions
 - Issue: NaN loss
   Solution: Implemented gradient clipping with a max norm of 1.0
 - Issue: Special token '<|endoftext|>' in training data

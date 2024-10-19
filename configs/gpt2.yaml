@@ -1,12 +1,12 @@
 global:
   tokenizer_name: 'r50k_base'
-  batch_size: 2
+  batch_size: 24
   optimizer: 'AdamW'
-  learning_rate: 5.0e-5
+  learning_rate: 1.0e-4
   weight_decay: 0.01
   num_epochs: 1
   save_dir: './checkpoints'
-  log_dir: './logs/gpt2_medium'
+  log_dir: './logs/gpt2_small'
   devices: ['cuda:0', 'cuda:1']
   eval_frequency: 1000  # Evaluate every 1000 iterations
   num_val_batches: 50   # Use 50 validation batches for each evaluation
